@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css.css">
+    <title>Hacked</title>
+    <script>
+        // function to get the IP v4 address
+        function getIPv4Address() {
+            fetch('https://httpbin.org/ip')
+                .then(response => response.json())
+                .then(data => {
+                    const ipv4 = data.origin.split(',')[0];
+                    document.getElementById('ipv4Address').innerText = 'IPv4 Address: ' + ipv4;
+                    getLocation(ipv4);
+                })
+                .catch(error => console.error('Error fetching IPv4 address:', error));
+        }
+        // function to get the location
+        function getLocation(ip) {
+            fetch(`http://api.ipstack.com/${ip}?access_key=6c3e00188609ef4b82e8b2f37912f924&output=json`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const location = `${data.city || 'Unknown City'}, ${data.region_name || 'Unknown Region'}, ${data.country_name || 'Unknown Country'}`;
+                    document.getElementById('location').innerText = 'Location: ' + location;
+                })
+                .catch(error => console.error('Error fetching location:', error.message));
+        }
+        // getting the in browser location
+        function getBrowserGeolocation() {
+            navigator.geolocation.getCurrentPosition(position => {
+                const location = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
+                document.getElementById('browserLocation').innerText = 'Browser Location: ' + location;
+            }, error => console.error('Error getting browser geolocation:', error));
+        }
+
+        function displayUserInfo() {
+            getIPv4Address();
+            getBrowserGeolocation();
+
+            // Display additional information
+            document.getElementById('userAgent').innerText = 'User Agent: ' + navigator.userAgent;
+            document.getElementById('screenResolution').innerText = 'Screen Resolution: ' + window.screen.width + 'x' + window.screen.height;
+            document.getElementById('browserLanguage').innerText = 'Browser Language: ' + navigator.language;
+            document.getElementById('timezone').innerText = 'Timezone: ' + Intl.DateTimeFormat().resolvedOptions().timeZone;
+            
+            // Simplified display of browser and device type
+            const deviceType = navigator.userAgent.match(/Mobi/) ? 'Mobile' : 'Desktop';
+            document.getElementById('deviceType').innerText = 'Browser and Device Type: ' + navigator.appName + ' on ' + deviceType;
+        }
+        // displays the information collected to the user
+        window.onload = displayUserInfo;
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Your device has been infected</h1>
+    </div>
+    <p id="ipv4Address"></p>
+    <p id="location"></p>
+    <p id="browserLocation"></p>
+    <p id="userAgent"></p>
+    <p id="screenResolution"></p>
+    <p id="browserLanguage"></p>
+    <p id="timezone"></p>
+    <p id="deviceType"></p>
+</body>
+</html>
